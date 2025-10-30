@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPL 2025/26 Full Table</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>English Premier League 2025/26</h1>
+    <div class="subtitle">Full Live Standings – Updated every 30 seconds</div>
+    <button class="refresh-btn" onclick="loadStandings()">Refresh</button>
+
+    <div id="loading" class="msg">Loading full 20-team table...</div>
+    <div id="error" class="msg error" style="display:none;"></div>
+
+    <div class="table-container">
+        <table id="standingsTable" style="display:none;">
+            <thead>
+                <tr>
+                    <th class="position">#</th>
+                    <th class="team">Team</th>
+                    <th>P</th><th>W</th><th>D</th><th>L</th>
+                    <th>F</th><th>A</th><th>GD</th>
+                    <th class="points">Pts</th>
+                </tr>
+            </thead>
+            <tbody id="standingsBody"></tbody>
+        </table>
+    </div>
+
+    <div id="lastUpdated" class="last-updated"></div>
+
+    <script>
+        const API_URL = 'https://www.thesportsdb.com/api/v1/json/123/lookuptable.php?l=4328';
+        const $ = id => document.getElementById(id);
+        const hide = el => el.style.display = 'none';
+        const show = el => el.style.display = 'block';
+
+        async function loadStandings() {
+            try {
+                hide($('error')); show($('loading'));
+                const res = await fetch(API_URL + '&_=' + Date.now());
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                const table = data.table || [];
+                if (table.length === 0) throw new Error('No data');
+
+                const tbody = $('standingsBody');
+                tbody.innerHTML = '';
+                table.forEach(team => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="position">${team.intRank}</td>
+                            <td class="team">
+                                <img src="${team.strBadge}" alt="" onerror="this.style.display='none'">
+                                ${team.strTeam}
+                            </td>
+                            <td>${team.intPlayed}</td>
+                            <td>${team.intWin}</td>
+                            <td>${team.intDraw}</td>
+                            <td>${team.intLoss}</td>
+                            <td>${team.intGoalsFor}</td>
+                            <td>${team.intGoalsAgainst}</td>
+                            <td>${team.intGoalDifference}</td>
+                            <td class="points">${team.intPoints}</td>
+                        </tr>`;
+                });
+
+                hide($('loading')); show($('standingsTable'));
+                $('lastUpdated').textContent = `Updated: ${new Date().toLocaleString()}`;
+            } catch (err) {
+                show($('error'));
+                $('error').textContent = `Error: ${err.message}`;
+            }
+        }
+
+        loadStandings();
+        setInterval(loadStandings, 30000);
+    </script>
+</body>
+</html>
