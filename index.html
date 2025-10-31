@@ -50,9 +50,9 @@
                 tbody.innerHTML = '';
                 table.forEach(team => {
                     tbody.innerHTML += `
+                                                // <img src="${team.strBadge}" alt="" onerror="this.style.display='none'">
                         <tr>
                             <td class="position">${team.intRank}</td>
-                            // <img src="${team.strBadge}" alt="" onerror="this.style.display='none'">
                             <td class="team">
                                 ${team.strTeam}
                             </td>
